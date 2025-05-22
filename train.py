@@ -57,3 +57,37 @@ class CNN(nn.Module):
         x = torch.relu(self.fc2(x))               # fc2 -> ReLU
         x = self.fc3(x)                       # final output layer
         return x
+
+
+# Loss function ,optimisation and the Model
+model = CNN().to(device)
+# loss function
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.Adam(model.parameters(), lr=0.001)
+
+# training loop
+num_epochs = 12
+
+for epoch in range(num_epochs):
+    running_loss = 0.0
+    model.train()  # Set model to training mode
+
+    for i, (inputs, labels) in enumerate(train_loader):
+        inputs, labels = inputs.to(device), labels.to(device)
+
+        optimizer.zero_grad()         # Clear gradients from previous step
+        outputs = model(inputs)
+        loss = criterion(outputs, labels)  # Calculate loss
+        loss.backward()               # Backpropagation
+        optimizer.step()              # Update weights
+
+        running_loss += loss.item()
+
+        if (i + 1) % 100 == 0:  # Print every 100 mini-batches
+            print(
+                f"[Epoch {epoch+1}/{num_epochs}, Batch {i+1}] Loss: {running_loss / 100:.4f}")
+            running_loss = 0.0
+
+print("Training is finished")
+
+torch.save(model.state_dict(), 'model.pth')
