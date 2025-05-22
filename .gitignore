@@ -16,3 +16,4 @@ models/
 .env
 venv/
 cifar/
+cifar/cifar-10-batches-py/
