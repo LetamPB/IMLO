@@ -44,6 +44,7 @@ class CNN(nn.Module):
     def forward(self, x):
         x = self.pool(torch.relu(self.conv1(x)))  # conv1 -> ReLU -> pool
         x = self.pool(torch.relu(self.conv2(x)))  # conv2 -> ReLU -> pool
+        x = self.pool2(torch.relu(self.conv3(x)))
         x = torch.flatten(x, 1)               # flatten for linear layer
         x = torch.relu(self.fc1(x))               # fc1 -> ReLU
         x = torch.relu(self.fc2(x))               # fc2 -> ReLU
