@@ -57,6 +57,9 @@ model = CNN().to(device)
 model.load_state_dict(torch.load('model.pth', map_location=device))
 model.eval()
 
+correct = 0
+total = 0
+
 with torch.no_grad():
     for input_images, labels in test_loader:
         input_images, labels = input_images.to(device), labels.to(device)
