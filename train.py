@@ -68,28 +68,46 @@ criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 # training loop
-num_epochs = 12
 
+
+def evaluate_accuracy(loader, model):
+    correct = 0
+    total = 0
+    model.eval()
+    with torch.no_grad():
+        for inputs, labels in loader:
+            inputs, labels = inputs.to(device), labels.to(device)
+            outputs = model(inputs)
+            _, predicted = torch.max(outputs.data, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+    return 100 * correct / total
+
+
+# training loop
+num_epochs = 12
 for epoch in range(num_epochs):
     running_loss = 0.0
-    model.train()  # Set model to training mode
-
+    model.train()
     for i, (inputs, labels) in enumerate(train_loader):
         inputs, labels = inputs.to(device), labels.to(device)
-
-        optimizer.zero_grad()         # Clear gradients from previous step
+        optimizer.zero_grad()
         outputs = model(inputs)
-        loss = criterion(outputs, labels)  # Calculate loss
-        loss.backward()               # Backpropagation
-        optimizer.step()              # Update weights
-
+        loss = criterion(outputs, labels)
+        loss.backward()
+        optimizer.step()
         running_loss += loss.item()
 
-        if (i + 1) % 100 == 0:  # Print every 100 mini-batches
+        if (i + 1) % 100 == 0:
             print(
                 f"[Epoch {epoch+1}/{num_epochs}, Batch {i+1}] Loss: {running_loss / 100:.4f}")
             running_loss = 0.0
 
-print("Training is finished")
+    # Accuracy after each epoch
+    train_acc = evaluate_accuracy(train_loader, model)
+    val_acc = evaluate_accuracy(validation_loader, model)
+    print(
+        f"Epoch {epoch+1}: Train Accuracy = {train_acc:.2f}%, Validation Accuracy = {val_acc:.2f}%")
 
+print("Training is finished")
 torch.save(model.state_dict(), 'model.pth')
